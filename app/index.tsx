@@ -21,7 +21,7 @@ export default function TaskListScreen() {
 
   const [search, setSearch] = useState("");
 
-  // 🔹 memoized, sorted & filtered tasks
+  //  memoized, sorted & filtered tasks
   const filteredTasks = useMemo(() => {
     const sorted = [...tasks].sort((a, b) => {
       if (a.dueDate && b.dueDate) {
@@ -123,7 +123,7 @@ export default function TaskListScreen() {
         />
       )}
 
-      {/* Add Button (FAB) */}
+      {/* Add Button */}
       <TouchableOpacity
         style={[
           styles.fab,

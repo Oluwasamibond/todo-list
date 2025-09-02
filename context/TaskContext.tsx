@@ -27,7 +27,7 @@ type TasksContextType = {
     title: string,
     description?: string,
     dueDate?: string
-  ) => Promise<void>; // 🔹 new
+  ) => Promise<void>;
 };
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -116,7 +116,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
-  // 🔹 New: updateTask
+  //  updateTask
   const updateTask = async (
     id: string,
     title: string,
