@@ -21,7 +21,7 @@ export default function TaskListScreen() {
 
   const [search, setSearch] = useState("");
 
-  // sorted + filtered tasks
+  // 🔹 memoized, sorted & filtered tasks
   const filteredTasks = useMemo(() => {
     const sorted = [...tasks].sort((a, b) => {
       if (a.dueDate && b.dueDate) {
@@ -46,6 +46,7 @@ export default function TaskListScreen() {
         { backgroundColor: theme === "light" ? "#f6f7fb" : "#000" },
       ]}
     >
+      {/* Header */}
       <View
         style={[
           styles.header,
@@ -85,6 +86,7 @@ export default function TaskListScreen() {
         />
       </View>
 
+      {/* Task List */}
       {loading ? (
         <View style={styles.center}>
           <Text style={{ color: theme === "light" ? "#111" : "#fff" }}>
@@ -114,13 +116,14 @@ export default function TaskListScreen() {
         <FlatList
           data={filteredTasks}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
           renderItem={({ item }) => (
             <TaskItem task={item} onToggle={toggleTask} onDelete={deleteTask} />
           )}
         />
       )}
 
+      {/* Add Button (FAB) */}
       <TouchableOpacity
         style={[
           styles.fab,
@@ -131,6 +134,7 @@ export default function TaskListScreen() {
         <MaterialIcons name="add" size={28} color="#fff" />
       </TouchableOpacity>
 
+      {/* Clear All */}
       {tasks.length > 0 && (
         <TouchableOpacity
           style={[styles.clear, { backgroundColor: "#ef4444" }]}

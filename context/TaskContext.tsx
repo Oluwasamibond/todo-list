@@ -21,7 +21,13 @@ type TasksContextType = {
   toggleTask: (id: string) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   clearAll: () => Promise<void>;
-  sortTasks: (criteria: "date" | "alpha" | "created") => void; // 🔹 added
+  sortTasks: (criteria: "date" | "alpha" | "created") => void;
+  updateTask: (
+    id: string,
+    title: string,
+    description?: string,
+    dueDate?: string
+  ) => Promise<void>; // 🔹 new
 };
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -49,7 +55,6 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
     })();
   }, []);
 
-  // persist whenever tasks change
   useEffect(() => {
     (async () => {
       try {
@@ -111,6 +116,27 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  // 🔹 New: updateTask
+  const updateTask = async (
+    id: string,
+    title: string,
+    description?: string,
+    dueDate?: string
+  ) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              title: title.trim(),
+              description: description?.trim(),
+              dueDate,
+            }
+          : t
+      )
+    );
+  };
+
   return (
     <TasksContext.Provider
       value={{
@@ -121,6 +147,7 @@ export const TasksProvider: React.FC<{ children: React.ReactNode }> = ({
         deleteTask,
         clearAll,
         sortTasks,
+        updateTask,
       }}
     >
       {children}

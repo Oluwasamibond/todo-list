@@ -32,21 +32,37 @@ export default function AddTaskScreen() {
     }
 
     await addTask(
-      title,
-      description,
+      title.trim(),
+      description.trim(),
       dueDate ? dueDate.toISOString() : undefined
     );
+
+    // reset state after saving
+    setTitle("");
+    setDescription("");
+    setDueDate(null);
+
     router.back();
   };
 
   const onChangeDate = (_: any, selectedDate?: Date) => {
-    setShowPicker(false);
+    if (Platform.OS === "android") {
+      setShowPicker(false);
+    }
     if (selectedDate) {
       setDueDate(selectedDate);
     }
   };
 
   const isLight = theme === "light";
+
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
 
   return (
     <SafeAreaView
@@ -57,6 +73,7 @@ export default function AddTaskScreen() {
         style={{ flex: 1 }}
       >
         <View style={styles.container}>
+          {/* Title */}
           <Text style={[styles.label, { color: isLight ? "#111" : "#fff" }]}>
             Title *
           </Text>
@@ -76,6 +93,7 @@ export default function AddTaskScreen() {
             returnKeyType="done"
           />
 
+          {/* Description */}
           <Text
             style={[
               styles.label,
@@ -101,7 +119,7 @@ export default function AddTaskScreen() {
             multiline
           />
 
-          {/* Due Date Picker */}
+          {/* Due Date */}
           <Text
             style={[
               styles.label,
@@ -124,9 +142,7 @@ export default function AddTaskScreen() {
             <Text
               style={{ color: dueDate ? (isLight ? "#000" : "#fff") : "#999" }}
             >
-              {dueDate
-                ? dueDate.toDateString()
-                : "Select a due date (optional)"}
+              {dueDate ? formatDate(dueDate) : "Select a due date (optional)"}
             </Text>
           </TouchableOpacity>
 
@@ -139,7 +155,7 @@ export default function AddTaskScreen() {
             />
           )}
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <View style={styles.actions}>
             <TouchableOpacity
               style={[

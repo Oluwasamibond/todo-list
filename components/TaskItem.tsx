@@ -1,6 +1,14 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Task } from "../context/TaskContext";
+import React, { useState } from "react";
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Task, useTasks } from "../context/TaskContext";
 import { useTheme } from "../context/ThemeContext";
 
 type Props = {
@@ -11,12 +19,26 @@ type Props = {
 
 export const TaskItem: React.FC<Props> = ({ task, onToggle, onDelete }) => {
   const { theme } = useTheme();
+  const { updateTask } = useTasks(); // 🔹 get updateTask
   const isLight = theme === "light";
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(task.title);
+  const [newDesc, setNewDesc] = useState(task.description || "");
 
   const isOverdue =
     task.dueDate &&
     !task.completed &&
     new Date(task.dueDate).getTime() < new Date().setHours(0, 0, 0, 0);
+
+  const handleSave = () => {
+    if (!newTitle.trim()) {
+      Alert.alert("Validation", "Task title cannot be empty.");
+      return;
+    }
+    updateTask(task.id, newTitle.trim(), newDesc.trim(), task.dueDate);
+    setIsEditing(false);
+  };
 
   return (
     <View
@@ -48,44 +70,83 @@ export const TaskItem: React.FC<Props> = ({ task, onToggle, onDelete }) => {
 
       {/* Task Info */}
       <View style={styles.info}>
-        <Text
-          style={[
-            styles.title,
-            { color: isLight ? "#111" : "#fff" },
-            task.completed && styles.completedTitle,
-          ]}
-          numberOfLines={1}
-        >
-          {task.title}
-        </Text>
+        {isEditing ? (
+          <>
+            <TextInput
+              value={newTitle}
+              onChangeText={setNewTitle}
+              style={[
+                styles.input,
+                { color: isLight ? "#111" : "#fff", borderColor: "#999" },
+              ]}
+              placeholder="Edit task title"
+            />
+            <TextInput
+              value={newDesc}
+              onChangeText={setNewDesc}
+              style={[
+                styles.input,
+                { color: isLight ? "#666" : "#aaa", borderColor: "#999" },
+              ]}
+              placeholder="Edit description"
+              multiline
+            />
+          </>
+        ) : (
+          <>
+            <Text
+              style={[
+                styles.title,
+                { color: isLight ? "#111" : "#fff" },
+                task.completed && styles.completedTitle,
+              ]}
+              numberOfLines={1}
+            >
+              {task.title}
+            </Text>
 
-        {task.description ? (
-          <Text
-            style={[
-              styles.desc,
-              { color: isLight ? "#666" : "#aaa" },
-              task.completed && styles.completedDesc,
-            ]}
-            numberOfLines={2}
-          >
-            {task.description}
-          </Text>
-        ) : null}
+            {task.description ? (
+              <Text
+                style={[
+                  styles.desc,
+                  { color: isLight ? "#666" : "#aaa" },
+                  task.completed && styles.completedDesc,
+                ]}
+                numberOfLines={2}
+              >
+                {task.description}
+              </Text>
+            ) : null}
 
-        {/* Due Date */}
-        {task.dueDate && (
-          <Text
-            style={[
-              styles.dueDate,
-              { color: isLight ? "#2563eb" : "#60a5fa" },
-              task.completed && styles.completedDueDate,
-              isOverdue && styles.overdue,
-            ]}
-          >
-            Due: {new Date(task.dueDate).toDateString()}
-          </Text>
+            {task.dueDate && (
+              <Text
+                style={[
+                  styles.dueDate,
+                  { color: isLight ? "#2563eb" : "#60a5fa" },
+                  task.completed && styles.completedDueDate,
+                  isOverdue && styles.overdue,
+                ]}
+              >
+                Due: {new Date(task.dueDate).toDateString()}
+              </Text>
+            )}
+          </>
         )}
       </View>
+
+      {/* Buttons */}
+      {isEditing ? (
+        <TouchableOpacity onPress={handleSave} style={styles.action}>
+          <MaterialIcons name="check" size={22} color="green" />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          onPress={() => setIsEditing(true)}
+          style={styles.action}
+        >
+          <MaterialIcons name="edit" size={22} color="#2563eb" />
+        </TouchableOpacity>
+      )}
 
       {/* Delete Button */}
       <TouchableOpacity
@@ -167,5 +228,14 @@ const styles = StyleSheet.create({
   },
   delete: {
     paddingLeft: 10,
+  },
+  action: {
+    paddingHorizontal: 6,
+  },
+  input: {
+    borderBottomWidth: 1,
+    marginVertical: 4,
+    paddingVertical: 2,
+    fontSize: 14,
   },
 });
